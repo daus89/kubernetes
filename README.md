@@ -8,8 +8,7 @@
 
    '''
    $kubectl exec -i -t pod/volume-share-devops -c volume-container-devops-1 -- /bin/bash
-   '''
-
+   
    - test file blog.txt should exist too in second container since they are using the same volume:
 
    '''
