@@ -1,0 +1,35 @@
+nginx-deployment.yaml
+# Create configmap, deployment and service manifest file
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+      <body>
+        <h1> Hello World!</h1>
+      </body>``
+    </html>
+
+--- 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+  labels:
+    name: myapp
+spec:
+  containers:
+  - name: myapp
+    image: <Image>
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: <Port>
+
