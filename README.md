@@ -13,7 +13,7 @@ $kubectl exec -i -t pod/volume-share-devops -c volume-container-devops-1 -- /bin
    - test file blog.txt should exist too in second container since they are using the same volume:
 
     '''
-  $kubectl exec -i -t pod/volume-share-devops -c volume-container-devops-1 -- ls /tmp/blog
+    $kubectl exec -i -t pod/volume-share-devops -c volume-container-devops-1 -- ls /tmp/blog
     '''
 
 2. Deploy a static website using configmaps, deployment and service; manifest file: nginx-deployment.yaml.
