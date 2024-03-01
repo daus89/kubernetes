@@ -1,0 +1,66 @@
+tomcat-deployment.yaml
+
+#Create namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: tomcat-namespace-nautilus
+spec: {}
+status: {}
+
+#Create deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: tomcat-deployment-nautilus
+  name: tomcat-deployment-nautilus
+  namespace: tomcat-namespace-nautilus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tomcat-deployment-nautilus
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: tomcat-deployment-nautilus
+    spec:
+      containers:
+      - image: gcr.io/kodekloud/centos-ssh-enabled:tomcat
+        name: tomcat-container-nautilus
+        ports:
+        - containerPort: 8080
+        resources: {}
+status: {}
+
+
+#Create service
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: tomcat-deployment-nautilus
+  name: tomcat-service-nautilus
+  namespace: tomcat-namespace-nautilus
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+    nodePort: 32227
+  selector:
+    app: tomcat-deployment-nautilus
+  type: NodePort
+status:
+  loadBalancer: {}
+
+##Imperative method
+##$k create ns tomcat-namespace-nautilus --dry-run=client -o yaml > ns.yaml
+##$k create deployment tomcat-deployment-nautilus -n tomcat-namespace-nautilus --image=gcr.io/kodekloud/centos-ssh-enabled:tomcat --replica=1 --port=8080 --dry-run=client -o yaml > tomcat.yaml
+##$k expose deployment/tomcat-deployment-nautilus -n tomcat-namespace-nautilus --port=8080 --target-port=8080 --type=NodePort --name=tomcat-service-nautilus --dry-run=client -o yaml > service.yaml

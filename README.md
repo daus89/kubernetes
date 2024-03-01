@@ -2,6 +2,8 @@
 # kubernetes manifest files
 # K8s Challenge
 
+Includes imperative commands to create manifest files faster.
+
 
 1. Create a Pod with two containers with a shared volume; use manifest file: shared-volume.yaml.
    - create a test file blog.txt inside the first container in /tmp/blog:
@@ -19,3 +21,12 @@
 
 3. Deploy a Grafana tools and expose using NodePort on port 3200: grafana-deployment.yaml.
 
+4. Deploy a tomcat app, it could be better if I mount some storage too: tomcat-deployment.yaml
+
+5. Update a deployment image, rollback to previous revision
+   '''
+   kubectl set image deployment/nginx-deployment nginx-container=nginx:latest
+   #to rollback to specific revision
+   kubectl rollout history deployment/nginx-deployment
+   kubectl rollout undo deployment/nginx-deployment --to-revision=1
+   '''
