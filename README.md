@@ -23,7 +23,8 @@ Includes imperative commands to create manifest files faster.
 
 4. Deploy a tomcat app, it could be better if I mount some storage too: tomcat-deployment.yaml
 
-5. Update a deployment image, rollback to previous revision
+5. Update a deployment image, rollback to previous revision.
+
    '''
    kubectl set image deployment/nginx-deployment nginx-container=nginx:latest
    #to rollback to specific revision
