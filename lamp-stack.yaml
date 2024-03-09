@@ -1,0 +1,133 @@
+lamp-stack.yaml
+
+#Configmap
+apiVersion: v1
+data:
+  php.ini: variables_order=EGPCS
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2024-03-09T03:48:05Z"
+  name: php-config
+  namespace: default
+
+#Deployment
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: lamp-wp
+  name: lamp-wp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lamp-wp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: lamp-wp
+    spec:
+      containers:
+      - image: webdevops/php-apache:alpine-3-php7
+        name: httpd-php-container
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: php-volume
+          mountPath: /opt/docker/etc/php/php.ini
+          subPath: php.ini
+        resources: {}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_ROOT_PASSWORD
+              name: mysql-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_DATABASE
+              name: mysql-database
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_USER
+              name: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_PASSWORD
+              name: mysql-password
+        - name: MYSQL_HOST
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_HOST
+              name: mysql-host
+        
+      - image: mysql:5.6
+        name: mysql-container
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_ROOT_PASSWORD
+              name: mysql-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_DATABASE
+              name: mysql-database
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_USER
+              name: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_PASSWORD
+              name: mysql-password
+        - name: MYSQL_HOST
+          valueFrom:
+            secretKeyRef:
+              key: MYSQL_HOST
+              name: mysql-host
+      volumes: 
+      - name: php-volume
+        configMap:
+          name: php-config
+status: {}
+
+##imperative command
+#k create configmap php-config --from-literal=php.ini='variables_order = "EGPCS"'
+#k create deployment lamp-wp --image=webdevops/php-apache:alpine-3-php7 --dry-run=client -o yaml > deployment.yaml
+#k create secret generic mysql-root-password --from-literal=MYSQL_ROOT_PASSWORD=123456
+#k create secret generic mysql-database --from-literal=MYSQL_DATABASE=mysql
+#k create secret generic mysql-user --from-literal=MYSQL_USER=thor
+#k create secret generic mysql-host --from-literal=MYSQL_HOST=mysql-service
+#k create secret generic mysql-password --from-literal=MYSQL_PASSWORD=123456
+#k expose deployment lamp-wp --port=80 --target-port=80 --type=NodePort --name=lamp-service
+#k expose deployment lamp-wp --port=3306 --target-port=3306 --name=mysql-service
+#k cp /tmp/index.php default/lamp-wp-556c49bd5f-2p27q:/app -c httpd-php-container
+#/app/index.php should as below
+<?php
+$dbname = getenv('MYSQL_DATABASE');
+$dbuser = getenv('MYSQL_USER');
+$dbpass = getenv('MYSQL_PASSWORD');
+$dbhost = getenv('MYSQL_HOST');
+
+$connect = mysqli_connect($dbhost, $dbuser, $dbpass) or die("Unable to Connect to '$dbhost'");
+
+$test_query = "SHOW TABLES FROM $dbname";
+$result = mysqli_query($test_query);
+
+if ($result->connect_error) {
+   die("Connection failed: " . $conn->connect_error);
+}
+  echo "Connected successfully";
